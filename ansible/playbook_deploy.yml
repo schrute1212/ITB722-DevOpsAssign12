@@ -1,0 +1,29 @@
+- hosts: manager
+  become: yes
+  tasks:
+    - name: Copy docker-compose stack to manager
+      copy:
+        src: ../docker/docker-compose.yml
+        dest: /home/ubuntu/docker-compose.yml
+        owner: ubuntu
+        mode: '0644'
+
+    - name: Copy web Dockerfile and django_app to manager (optional)
+      copy:
+        src: ../django_app/
+        dest: /home/ubuntu/django_app/
+        owner: ubuntu
+        mode: '0755'
+        recurse: yes
+
+    - name: Build images on manager (use docker build)
+      shell: |
+        cd /home/ubuntu
+        docker build -t myapp_web -f /home/ubuntu/django_app/Dockerfile /home/ubuntu/django_app || true
+      args:
+        warn: false
+
+    - name: Deploy stack
+      shell: docker stack deploy -c /home/ubuntu/docker-compose.yml myapp
+      args:
+        chdir: /home/ubuntu

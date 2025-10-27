@@ -1,0 +1,51 @@
+# Docker Compose placeholder
+version: "3.8"
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - mynet
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+      restart_policy:
+        condition: on-failure
+
+  web:
+    image: myapp_web  # built on manager (playbook_deploy builds this)
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_NAME=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgrespassword
+    depends_on:
+      - db
+    ports:
+      - target: 8000
+        published: 8000
+        protocol: tcp
+        mode: host
+    networks:
+      - mynet
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 1
+        delay: 10s
+
+networks:
+  mynet:
+    driver: overlay
+
+volumes:
+  pgdata:

@@ -1,0 +1,56 @@
+name: DevOps Assignment CI
+
+on:
+  push:
+    branches:
+      - ITB710
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_aws_region: "us-east-1"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible boto3
+
+      - name: Setup Terraform CLI
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform init & apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
+          terraform output -json > ../terraform_outputs.json
+          ls -l
+
+      - name: Generate Ansible inventory
+        run: |
+          python3 ansible/generate_inventory.py
+          cat ansible/inventory.ini
+
+      - name: Run Ansible setup
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/playbook_setup.yml -v
+
+      - name: Run Ansible init swarm & join
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/playbook_swarm.yml -v
+
+      - name: Deploy stack via Ansible
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/playbook_deploy.yml -v

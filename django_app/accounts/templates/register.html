@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Register</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background-color: #636B2F;
+        background-image: 
+          radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+          linear-gradient(rgba(0,0,0,0.10) 1px, transparent 1px);
+        background-size: 110px 110px, 14px 14px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+      }
+      .register-container {
+        background-color: rgba(255,255,255,0.05);
+        padding: 36px 32px 32px 32px;
+        border-radius: 14px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        min-width: 320px;
+        width: 100%;
+        max-width: 370px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.10);
+        backdrop-filter: blur(8px);
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        color: white;
+      }
+      form label {
+        display: block;
+        text-align: left;
+        margin-bottom: 8px;
+        font-size: 15px;
+        color: #f0ecd4;
+      }
+      form input[type="text"],
+      form input[type="password"] {
+        width: 100%;
+        padding: 10px 14px;
+        margin-bottom: 17px;
+        border-radius: 7px;
+        border: 1px solid #c0c2b0;
+        background-color: rgba(245,245,245,0.15);
+        color: #292b23;
+        font-size: 15px;
+        box-sizing: border-box;
+        outline: none;
+        transition: border 0.2s;
+      }
+      form input:focus {
+        border-color: #8c9642;
+      }
+      form button {
+        background-color: #7a8450;
+        color: white;
+        border: none;
+        padding: 12px 0;
+        width: 100%;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.11);
+      }
+      form button:hover {
+        background-color: #a7af66;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+      }
+      p.error {
+        color: #ffcece;
+        margin: 8px 0 12px 0;
+        font-size: 14px;
+      }
+      .login-link {
+        margin-top: 15px;
+        font-size: 15px;
+        color: #e7e8dc;
+      }
+      .login-link a {
+        color: #cbdc6b;
+        text-decoration: underline;
+        transition: color 0.2s;
+      }
+      .login-link a:hover {
+        color: #b4bc49;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <h1>Register</h1>
+      {% if messages %}
+        {% for m in messages %}
+          <p class="error">{{ m }}</p>
+        {% endfor %}
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <label>Username (Roll No):</label>
+        <input type="text" name="username" required>
+        <label>Password (Admission No):</label>
+        <input type="password" name="password" required>
+        <button type="submit">Register</button>
+      </form>
+      <div class="login-link">
+        Already have an account? <a href="/login/">Login</a>
+      </div>
+    </div>
+  </body>
+</html>

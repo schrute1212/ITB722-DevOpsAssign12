@@ -1,0 +1,28 @@
+- hosts: manager
+  become: yes
+  tasks:
+    - name: Initialize swarm (if not already)
+      shell: |
+        docker swarm init --advertise-addr {{ ansible_host }} || true
+      register: init_out
+      changed_when: "'This node is already part of a swarm' not in init_out.stderr and init_out.rc == 0"
+
+    - name: Get worker join token
+      shell: docker swarm join-token -q worker
+      register: worker_token
+      changed_when: false
+
+    - name: Set join token fact
+      set_fact:
+        worker_join_token: "{{ worker_token.stdout }}"
+
+- hosts: workers
+  become: yes
+  tasks:
+    - name: Join swarm on worker nodes
+      shell: |
+        docker swarm join --token {{ hostvars[groups['manager'][0]].worker_join_token }} {{ hostvars[groups['manager'][0]].ansible_host }}:2377 || true
+      args:
+        warn: false
+      register: join_out
+      changed_when: "'This node is already part of a swarm' not in join_out.stderr and join_out.rc == 0"
